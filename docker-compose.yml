@@ -1,0 +1,27 @@
+db:
+  image: postgres
+web:
+  build: ./web/
+  command: uwsgi --socket :8000 --module planck.wsgi
+  volumes:
+    - ./web:/usr/src/app/
+    - ./static:/var/www/djalpha/static/
+  ports:
+    - "8000"
+  links:
+    - db
+  env_file:
+    - .env
+    - /opt/djalpha_secrets.env
+
+nginx:
+  image: nginx
+  volumes:
+    - ./nginx/conf.d:/etc/nginx/conf.d
+    - /www/static
+  volumes_from:
+    - web
+  ports:
+    - "50080:80"
+  links:
+    - web
